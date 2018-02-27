@@ -170,6 +170,7 @@ public class WhatsChatClient extends JFrame {
 						String requestMsg = nameCheckCmd + textFieldUser.getText();
 						isRegisterGuy = 1;
 						btnRegister.setEnabled(false);
+						textFieldUser.setEditable(false);
 						lblToolTip.setText("Connecting... Please wait.");
 						sendBroadcastData(requestMsg);
 					}
@@ -213,7 +214,15 @@ public class WhatsChatClient extends JFrame {
 					if (textFieldGroup.getText().equals("")){
 						lblToolTip.setText("Please enter a group name first!");
 					} else {
-						String requestMsg = groupCheckCmd + textFieldGroup.getText();
+
+						//Append a new address for the group
+						String addressForNewGroup = baseReservedAdd + String.valueOf(toReserveX)
+								+ "." + String.valueOf(toReserveY);
+						//Refresh X and Y IP address parts incase of new creation
+						toReserveX = 2 + ran.nextInt(254);
+						toReserveY = 2 + ran.nextInt(254);
+
+						String requestMsg = groupCheckCmd + textFieldGroup.getText() + separatorTrail + user + groupSeparatorTrail + addressForNewGroup;
 						isCreatingGuy = 1;
 						lblToolTip.setText("Connecting... Please wait.");
 						sendBroadcastData(requestMsg);
@@ -227,7 +236,7 @@ public class WhatsChatClient extends JFrame {
 							lblToolTip.setText("Please do not try to add yourself!");
 						} else {
 							String requestMessage = groupAddCmd + activeGroup + separatorTrail + temp;
-							lblToolTip.setText("Connecting... Please wait.");
+							lblToolTip.setText("Member added!");
 							sendBroadcastData(requestMessage);
 						}
 					}
@@ -258,7 +267,7 @@ public class WhatsChatClient extends JFrame {
 							lblToolTip.setText("Please do not try to remove yourself!");
 						} else {
 							String requestMessage = groupRemvCmd + activeGroup + separatorTrail + temp;
-							lblToolTip.setText("Connecting... Please wait.");
+							lblToolTip.setText("Member removed!");
 							sendBroadcastData(requestMessage);
 						}
 					}
@@ -317,22 +326,24 @@ public class WhatsChatClient extends JFrame {
 		listGroups.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent evt) {
 				if (evt.getClickCount() == 2) {
-					String groupName = listGroups.getSelectedValue();
-					String check = activeGroup + " - Active";
-					if (!check.equals(groupName)) {
-						swapActiveGroupUI(activeGroup, groupName);
-						activeGroup = groupName;
-						textFieldGroup.setText(groupName);
+					if (listGroups.getSelectedIndex() > -1) {
+						String groupName = listGroups.getSelectedValue();
+						String check = activeGroup + " - Active";
+						if (!check.equals(groupName)) {
+							swapActiveGroupUI(activeGroup, groupName);
+							activeGroup = groupName;
+							textFieldGroup.setText(groupName);
 
-						refreshTextArea(textArea);
-					} else {
-						textFieldGroup.setText(activeGroup);
+							refreshTextArea(textArea);
+						} else {
+							textFieldGroup.setText(activeGroup);
+						}
+
+						panel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Member Management", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+						btnGroupCreate.setText("Add");
+						btnGroupDelete.setText("Remove");
+						btnGroupEdit.setText("Toggle user list");
 					}
-
-					panel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Member Management", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
-					btnGroupCreate.setText("Add");
-					btnGroupDelete.setText("Remove");
-					btnGroupEdit.setText("Toggle user list");
 				}
 			}
 		});
@@ -444,23 +455,20 @@ public class WhatsChatClient extends JFrame {
 								//Message for creating group
 								if (receivedMessage.substring(0, 3).equals(groupCheckCmd)){
 									String groupCreateCheck = receivedMessage.substring(3);
+									String groupName = groupCreateCheck.substring(0, groupCreateCheck.indexOf(separatorTrail));
+									String name = groupCreateCheck.substring(groupCreateCheck.indexOf(separatorTrail) + 3, groupCreateCheck.indexOf(groupSeparatorTrail));
+									String ipAdd = groupCreateCheck.substring(groupCreateCheck.indexOf(groupSeparatorTrail) + 3);
 									//Check group name against current table.
-									if (!runGroupNameCheck(groupCreateCheck)){
-										//Append a new address for the group
-										String addressForNewGroup = baseReservedAdd + String.valueOf(toReserveX)
-										+ "." + String.valueOf(toReserveY);
-										//Refresh X and Y IP address parts incase of new creation
-										toReserveX = 2 + ran.nextInt(254);
-										toReserveY = 2 + ran.nextInt(254);
+									if (!runGroupNameCheck(groupName)){
 										
 										if(isCreatingGuy == 1){
 											//Join the group
-											joinGroup(addressForNewGroup, textArea, groupCreateCheck);
-											groupList.add(groupCreateCheck);
+											joinGroup(ipAdd, textArea, groupName);
+											groupList.add(groupName);
 											updateGroupUIList();
 
-											swapActiveGroupUI(activeGroup, groupCreateCheck);
-											activeGroup = groupCreateCheck;
+											swapActiveGroupUI(activeGroup, groupName);
+											activeGroup = groupName;
 
 											lblToolTip.setText("Group created!");
 
@@ -468,17 +476,19 @@ public class WhatsChatClient extends JFrame {
 											btnGroupCreate.setText("Add");
 											btnGroupDelete.setText("Remove");
 											btnGroupEdit.setText("Toggle user list");
+
+											isCreatingGuy = 0;
 										}
 										//Update table nonetheless for other clients
-										groups.put(groupCreateCheck, addressForNewGroup);
+										groups.put(groupName, ipAdd);
 										ArrayList<String> tempMembers = new ArrayList<String>();
-										if (groupMembers.get(groupCreateCheck) != null){
-											tempMembers = groupMembers.get(groupCreateCheck);
-											tempMembers.add(user);
-											groupMembers.put(groupCreateCheck, tempMembers);
+										if (groupMembers.get(groupName) != null){
+											tempMembers = groupMembers.get(groupName);
+											tempMembers.add(name);
+											groupMembers.put(groupName, tempMembers);
 										} else {
-											tempMembers.add(user);
-											groupMembers.put(groupCreateCheck, tempMembers);										
+											tempMembers.add(name);
+											groupMembers.put(groupName, tempMembers);
 										}
 									} else {
 										//Give a notice that name has been taken already
@@ -498,7 +508,19 @@ public class WhatsChatClient extends JFrame {
 										
 										//The user being added will try to join the group stated
 										if (user.equals(userToAdd)){
-											joinGroup(addToGroup, textArea, addToGroup);
+											String ipAdd = groups.get(addToGroup);
+											joinGroup(ipAdd, textArea, addToGroup);
+											groupList.add(addToGroup);
+											textFieldGroup.setText(addToGroup);
+											swapActiveGroupUI(activeGroup, addToGroup);
+											activeGroup = addToGroup;
+
+											panel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Member Management", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+											btnGroupCreate.setText("Add");
+											btnGroupDelete.setText("Remove");
+											btnGroupEdit.setText("Toggle user list");
+
+											refreshTextArea(textArea);
 										}
 										
 										//Update the group members to include the new guy
@@ -511,7 +533,8 @@ public class WhatsChatClient extends JFrame {
 											tempMembers.add(userToAdd);
 											groupMembers.put(addToGroup, tempMembers);									
 										}
-										
+
+										updateGroupUIList();
 									} else {
 										lblToolTip.setText("User is already in the group!");
 									}
@@ -526,18 +549,30 @@ public class WhatsChatClient extends JFrame {
 									//Check if user belongs to the group
 									if (runMemberCheck(remvFrmGroup, userToRemv)){
 										//User belongs to group
-										
+
 										//User in question will leave the group stated
 										if (user.equals(userToRemv)){
 											leaveGroup(remvFrmGroup);
+											refreshTextArea(textArea);
+											updateGroupUIList();
+											lblToolTip.setText("You have been removed from a group...");
 										}
 										
 										//Update the group members to remove the new guy
 										ArrayList<String> tempMembers = new ArrayList<String>();
 										if (groupMembers.get(remvFrmGroup) != null){
 											tempMembers = groupMembers.get(remvFrmGroup);
-											tempMembers.remove(remvFrmGroup);
+											tempMembers.remove(userToRemv);
 											groupMembers.put(remvFrmGroup, tempMembers);
+										}
+
+										if (lblUserlist.getText().equals("Current Group")){
+											userListModel = new DefaultListModel<String>();
+											ArrayList<String> tempList = groupMembers.get(activeGroup);
+											for (String user : tempList){
+												userListModel.addElement(user);
+											}
+											listUsers.setModel(userListModel);
 										}
 									}
 								}
@@ -573,8 +608,6 @@ public class WhatsChatClient extends JFrame {
 										}
 
 										//Update local group list
-										System.out.println(oldGroupName + " : " + newGroupName);
-										System.out.println(groupList);
 										groupList.set(groupList.indexOf(oldGroupName + " - Active"), newGroupName);
 
 										updateGroupUIList();
@@ -592,14 +625,11 @@ public class WhatsChatClient extends JFrame {
 							if (receivedMessage.substring(0, 3).equals(groupDelCmd)){
 								String delGroupMsg = receivedMessage.substring(3);
 
-								System.out.println("Delete request received");
-
 								//Check if group exists
 								if (!runGroupNameCheck(delGroupMsg)){
 									lblToolTip.setText("Group doesn't exist, can't delete!");
 								} else {
 									//Group exists, prepare to delete everything related to the group
-									System.out.println("Start delete");
 
 									//Leave the group first
 									leaveGroup(delGroupMsg);
@@ -643,11 +673,9 @@ public class WhatsChatClient extends JFrame {
 							
 							//Message for requesting for list of login users
 							if (receivedMessage.substring(0, 3).equals(userListReqCmd)){
-								System.out.println("Got request for user list: " + toReserveX);
 								
 								//Check if this instance is the oldest user in the network
 								if (isOldestUser == 1){
-									System.out.println("Replying user list: " + toReserveX);
 									replyUserList();
 								}
 							}
@@ -671,7 +699,6 @@ public class WhatsChatClient extends JFrame {
 								String msgUserRecvMessage = receivedMessage.substring(3);
 								//Gives the updated list to anyone with an empty user list
 								if(userList.size() == 0){
-									System.out.println("Received latest user list: " + toReserveX);
 									//Start decoding the list of users
 									addUserList(msgUserRecvMessage);
 								}
@@ -777,6 +804,16 @@ public class WhatsChatClient extends JFrame {
 			sendData(groupAdd + groupSeparatorTrail + user + " has left the group.");
 			
 			multicastSocket.leaveGroup(multicastGroup);
+
+			//Clear group details
+			chatHistory.remove(groupName);
+			if (activeGroup.equals(groupName)){
+				activeGroup = "";
+				groupList.remove(groupName + " - Active");
+			} else {
+				groupList.remove(groupName);
+			}
+
 
 		} catch (Exception ex){
 			ex.printStackTrace();
@@ -920,10 +957,7 @@ public class WhatsChatClient extends JFrame {
 	
 	private void oldestUserCheck(){
 		if (userList.size() == 0){
-			System.out.println("Oldest is me");
 			isOldestUser = 1;
-		} else {
-			System.out.println("Oldest isn't me");
 		}
 	}
 
