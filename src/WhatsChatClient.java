@@ -74,11 +74,13 @@ public class WhatsChatClient extends JFrame {
 	String userListReqCmd = "u/.";
 	String lastMsgRecvCmd = "w/.";
 	String userListRecvCmd = "n/.";
+	String grpListRecvCmd = "q/.";
 	String groupDelCmd = "d/.";
 	
 	String groupSeparatorTrail = "g/."; //Used to differentiate between user and group name for chat history
 	String userSeparatorTrail = "-"; //Used to differentiate between user names
 	String msgSeparatorTrail = "="; //Used to differentiate between chat messages
+	String ipSeparatorTrail = "]";
 	
 	DefaultListModel<String> userListModel = null; //use addElement to add into list, 
 	DefaultListModel<String> groupListModel = null; //list = new JList(listModel) to update Jlist
@@ -389,6 +391,7 @@ public class WhatsChatClient extends JFrame {
 					String messageToSend = activeGroup + groupSeparatorTrail + user + ": " + textFieldTextMsg.getText();
 					sendData(messageToSend);
 					textFieldTextMsg.setText(null);
+					textFieldTextMsg.requestFocusInWindow();
 				}
 			}
 		});
@@ -477,6 +480,9 @@ public class WhatsChatClient extends JFrame {
 											btnGroupDelete.setText("Remove");
 											btnGroupEdit.setText("Toggle user list");
 
+											//Instance becomes oldest member of group
+											isOldestGrpMem.put(groupName, 1);
+
 											isCreatingGuy = 0;
 										}
 										//Update table nonetheless for other clients
@@ -521,6 +527,12 @@ public class WhatsChatClient extends JFrame {
 											btnGroupEdit.setText("Toggle user list");
 
 											refreshTextArea(textArea);
+
+											//Request for chat history if this instance doesn't have it
+											if (chatHistory.get(addToGroup) == null || chatHistory.get(addToGroup).size() < 2){
+												String requestChatMessage = lastMsgReqCmd + addToGroup + separatorTrail + user;
+												sendBroadcastData(requestChatMessage);
+											}
 										}
 										
 										//Update the group members to include the new guy
@@ -573,6 +585,11 @@ public class WhatsChatClient extends JFrame {
 												userListModel.addElement(user);
 											}
 											listUsers.setModel(userListModel);
+										}
+
+										//Find the next oldest member of group
+										if (user.equals(groupMembers.get(remvFrmGroup).get(0))){
+											isOldestGrpMem.put(remvFrmGroup, 1);
 										}
 									}
 								}
@@ -677,6 +694,7 @@ public class WhatsChatClient extends JFrame {
 								//Check if this instance is the oldest user in the network
 								if (isOldestUser == 1){
 									replyUserList();
+									replyGroupList();
 								}
 							}
 							
@@ -691,6 +709,7 @@ public class WhatsChatClient extends JFrame {
 								if(user.equals(userToRecv)){
 									//Start decoding message history
 									addChatHistory(groupName, msgRecvMessage.substring(msgRecvMessage.indexOf(groupSeparatorTrail) + 3));
+									refreshTextArea(textArea);
 								}
 							}
 							
@@ -701,6 +720,16 @@ public class WhatsChatClient extends JFrame {
 								if(userList.size() == 0){
 									//Start decoding the list of users
 									addUserList(msgUserRecvMessage);
+								}
+							}
+
+							//Message for receiving group list on startup
+							if(receivedMessage.substring(0, 3).equals(grpListRecvCmd)){
+								String msgGrpRecvMessage = receivedMessage.substring(3);
+								//Gives the updated list to anyone with an empty user list
+								if(groups.size() < 1){
+									//Start decoding the list of users
+									addGrpList(msgGrpRecvMessage);
 								}
 							}
 							
@@ -851,13 +880,13 @@ public class WhatsChatClient extends JFrame {
 		if (chatHistory.get(groupName) != null){
 			ArrayList<String> tempList = chatHistory.get(groupName);
 			if (tempList.size() > 11){
-				limiter = 11;
+				limiter = 10;
 			} else {
-				limiter = tempList.size() + 1;
+				limiter = tempList.size();
 			}
 			
-			for (int i = 0; i < limiter; i++){
-				returnMsg += tempList.get(tempList.size() - i) + msgSeparatorTrail;
+			for (int i = limiter; i > 0; i--){
+				returnMsg += tempList.get(tempList.size() - i) + msgSeparatorTrail + " ";
 			}
 		} else {
 			returnMsg += "none";
@@ -879,12 +908,40 @@ public class WhatsChatClient extends JFrame {
 		
 		sendBroadcastData(returnMsg);
 	}
+
+	//Oldest guy broadcasts out his groups
+	private void replyGroupList(){
+		String returnMsg = grpListRecvCmd;
+		if (groups.size() > 0){
+			for (Map.Entry<String, String> entry : groups.entrySet()){
+				String name = entry.getKey();
+				String ipAdd = entry.getValue();
+
+				ArrayList<String> userList = groupMembers.get(name);
+				String users = "";
+
+				for (String userName : userList){
+					users += userName + msgSeparatorTrail + " ";
+				}
+
+				returnMsg += name + groupSeparatorTrail + ipAdd + ipSeparatorTrail + users;
+				System.out.println(returnMsg);
+			}
+
+			sendBroadcastData(returnMsg);
+		}
+	}
 	
 	//Adds in the chat history from the oldest group member
 	private void addChatHistory(String groupname, String chathist){
 		if (!chathist.equals("none")){
 			String[] list = chathist.split(msgSeparatorTrail);
 			ArrayList<String> tempList = new ArrayList<String>(Arrays.asList(list));
+			for (int i = 0; i < tempList.size(); i++){
+				String temp  = tempList.get(i).trim();
+				tempList.set(i, temp);
+			}
+			tempList.remove(tempList.size() - 1);
 			chatHistory.put(groupname, tempList);
 		}
 	}
@@ -901,6 +958,46 @@ public class WhatsChatClient extends JFrame {
 			userList.remove(userList.size()-1);
 		}
 		updateUserUIList();
+	}
+
+	//Adds in group list from oldest network user
+	private void addGrpList(String groupString){
+		if (!groupString.equals("none")){
+			String[] list = groupString.split(userSeparatorTrail);
+			ArrayList<String> tempGroups = new ArrayList<String>(Arrays.asList(list));
+			for (int i = 0; i < tempGroups.size(); i++){
+				String temp  = tempGroups.get(i).trim();
+				tempGroups.set(i, temp);
+			}
+			tempGroups.remove(tempGroups.size()-1);
+
+			String[] list2;
+			String groupName;
+			String groupIP;
+			String members;
+			ArrayList<String> tempMembers;
+			//Get users in groups
+			for (String pack : tempGroups){
+				groupName = pack.substring(0, pack.indexOf(groupSeparatorTrail));
+				groupIP = pack.substring(pack.indexOf(groupSeparatorTrail) + 3, pack.indexOf(ipSeparatorTrail));
+				members = pack.substring(pack.indexOf(groupSeparatorTrail) + 3);
+				list2 = members.split(msgSeparatorTrail);
+
+				tempMembers = new ArrayList<String>(Arrays.asList(list2));
+
+				for (int i = 0; i < tempGroups.size(); i++){
+					String temp  = tempGroups.get(i).trim();
+					tempGroups.set(i, temp);
+				}
+				tempGroups.remove(tempGroups.size()-1);
+
+				System.out.println(groupName + " : " + groupIP + " : " + tempGroups);
+				groups.put(groupName, groupIP);
+				groupMembers.put(groupName, tempGroups);
+			}
+
+			updateGroupUIList();
+		}
 	}
 	
 	//Sends data towards the groups

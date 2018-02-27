@@ -2,7 +2,16 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="e8e53244-8383-483b-8240-3b8fa48ee5e1" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/vcs.xml" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/WhatsChatClient$10.class" afterPath="$PROJECT_DIR$/bin/WhatsChatClient$10.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/WhatsChatClient$2.class" afterPath="$PROJECT_DIR$/bin/WhatsChatClient$2.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/WhatsChatClient$3.class" afterPath="$PROJECT_DIR$/bin/WhatsChatClient$3.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/WhatsChatClient$4.class" afterPath="$PROJECT_DIR$/bin/WhatsChatClient$4.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/WhatsChatClient$5.class" afterPath="$PROJECT_DIR$/bin/WhatsChatClient$5.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/WhatsChatClient$6.class" afterPath="$PROJECT_DIR$/bin/WhatsChatClient$6.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/WhatsChatClient$7.class" afterPath="$PROJECT_DIR$/bin/WhatsChatClient$7.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/WhatsChatClient$8.class" afterPath="$PROJECT_DIR$/bin/WhatsChatClient$8.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/WhatsChatClient$9.class" afterPath="$PROJECT_DIR$/bin/WhatsChatClient$9.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/WhatsChatClient.class" afterPath="$PROJECT_DIR$/bin/WhatsChatClient.class" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/WhatsChatClient.java" afterPath="$PROJECT_DIR$/src/WhatsChatClient.java" />
     </list>
@@ -22,9 +31,11 @@
       <file leaf-file-name="WhatsChatClient.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/WhatsChatClient.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1973">
-              <caret line="328" column="58" lean-forward="false" selection-start-line="328" selection-start-column="58" selection-end-line="328" selection-end-column="58" />
-              <folding />
+            <state relative-caret-position="616">
+              <caret line="937" column="62" lean-forward="true" selection-start-line="937" selection-start-column="62" selection-end-line="937" selection-end-column="62" />
+              <folding>
+                <element signature="e#35820#35828#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -228,6 +239,14 @@
       <option name="presentableId" value="Default" />
       <updated>1519732829609</updated>
     </task>
+    <task id="LOCAL-00001" summary="Actually functioning add members, half done remove members, need to fix getting groups on startup, getting chat history, leaving the network, handling of who gets to be oldest network user, and oldest group member.">
+      <created>1519750231572</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1519750231573</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -240,10 +259,10 @@
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Image Layers" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.215625" sideWeight="0.5042644" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.215625" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.215625" sideWeight="0.49573562" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32916668" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32916668" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -252,7 +271,7 @@
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Theme Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.4978678" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -270,7 +289,8 @@
       <path value="$PROJECT_DIR$/src" />
     </ignored-roots>
     <MESSAGE value="Not yet complete files for the project" />
-    <option name="LAST_COMMIT_MESSAGE" value="Not yet complete files for the project" />
+    <MESSAGE value="Actually functioning add members, half done remove members, need to fix getting groups on startup, getting chat history, leaving the network, handling of who gets to be oldest network user, and oldest group member." />
+    <option name="LAST_COMMIT_MESSAGE" value="Actually functioning add members, half done remove members, need to fix getting groups on startup, getting chat history, leaving the network, handling of who gets to be oldest network user, and oldest group member." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -281,7 +301,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="e#35820#35828#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -289,15 +311,19 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="e#35820#35828#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/WhatsChatClient.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1973">
-          <caret line="328" column="58" lean-forward="false" selection-start-line="328" selection-start-column="58" selection-end-line="328" selection-end-column="58" />
-          <folding />
+        <state relative-caret-position="616">
+          <caret line="937" column="62" lean-forward="true" selection-start-line="937" selection-start-column="62" selection-end-line="937" selection-end-column="62" />
+          <folding>
+            <element signature="e#35820#35828#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
