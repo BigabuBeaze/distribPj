@@ -135,7 +135,13 @@ public class WhatsChatClient extends JFrame {
 		
 		isOldestGrpMem = new HashMap<String, Integer>(); //Used to check if this instance is oldest guy of certain groups
 		activeGroup = ""; //Use to see which group is active for the instance
-		
+
+
+		try {
+			multicastSocket = new MulticastSocket(6789);
+		} catch (Exception ex){
+			ex.printStackTrace();
+		}
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
@@ -499,6 +505,8 @@ public class WhatsChatClient extends JFrame {
 											//Instance becomes oldest member of group
 											isOldestGrpMem.put(groupName, 1);
 
+											refreshTextArea(textArea);
+
 											isCreatingGuy = 0;
 										}
 										//Update table nonetheless for other clients
@@ -777,6 +785,36 @@ public class WhatsChatClient extends JFrame {
 					}
 				}
 			}).start();
+
+			//Create a new thread to keep listening for packets from the group
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					byte buf[] = new byte[1000];
+					DatagramPacket dgpRecieved
+							= new DatagramPacket(buf, buf.length);
+					while(true) {
+						if (multicastSocket!= null) {
+							try {
+								multicastSocket.receive(dgpRecieved);
+								byte[] recievedData = dgpRecieved.getData();
+								int length = dgpRecieved.getLength();
+								//Assumed we received string
+								if (length > 0) {
+									String msg = new String(recievedData, 0, length);
+									String group = msg.substring(0, msg.indexOf(groupSeparatorTrail));
+									String messageText = msg.substring(msg.indexOf(groupSeparatorTrail) + 3);
+
+									updateChatHistory(group, messageText);
+									refreshTextArea(textArea);
+								}
+							} catch (IOException ex) {
+								ex.printStackTrace();
+							}
+						}
+					}
+				}
+			}).start();
 			
 		} catch (Exception ex){
 			ex.printStackTrace();
@@ -808,40 +846,11 @@ public class WhatsChatClient extends JFrame {
 	private void joinGroup(String groupIP, JTextArea textArea, String groupName){
 		try {
 			multicastGroup = InetAddress.getByName(groupIP);
-			multicastSocket = new MulticastSocket(6789);
 			//Join
 			multicastSocket.joinGroup(multicastGroup);
 			//Send a joined message
 			String message =groupName + groupSeparatorTrail + user + " joined";
 			sendData(message);
-			
-			//Create a new thread to keep listening for packets from the group
-			new Thread(new Runnable() {
-				@Override
-				public void run() {
-					byte buf[] = new byte[1000];
-					DatagramPacket dgpRecieved
-						= new DatagramPacket(buf, buf.length);
-					while(true) {
-						try{
-							multicastSocket.receive(dgpRecieved);
-							byte[] recievedData = dgpRecieved.getData();
-							int length = dgpRecieved.getLength();
-							//Assumed we received string
-							if (length > 0) {
-								String msg = new String(recievedData, 0, length);
-								String group = msg.substring(0, msg.indexOf(groupSeparatorTrail));
-								String messageText = msg.substring(msg.indexOf(groupSeparatorTrail) + 3);
-
-								updateChatHistory(group, messageText);
-								refreshTextArea(textArea);
-							}
-						} catch (IOException ex){
-							ex.printStackTrace();
-						}
-					}
-				}
-			}).start();
 			
 			
 		} catch (IOException ex) {
