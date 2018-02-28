@@ -218,36 +218,40 @@ public class WhatsChatClient extends JFrame {
 		JButton btnGroupCreate = new JButton("Create");
 		btnGroupCreate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (btnGroupCreate.getText().equals("Create")){
-					if (textFieldGroup.getText().equals("")){
-						lblToolTip.setText("Please enter a group name first!");
-					} else {
-
-						//Append a new address for the group
-						String addressForNewGroup = baseReservedAdd + String.valueOf(toReserveX)
-								+ "." + String.valueOf(toReserveY);
-						//Refresh X and Y IP address parts incase of new creation
-						toReserveX = 2 + ran.nextInt(254);
-						toReserveY = 2 + ran.nextInt(254);
-
-						String requestMsg = groupCheckCmd + textFieldGroup.getText() + separatorTrail + user + groupSeparatorTrail + addressForNewGroup;
-						isCreatingGuy = 1;
-						lblToolTip.setText("Connecting... Please wait.");
-						sendBroadcastData(requestMsg);
-					}
-				} else {
-					if (listUsers.getSelectedIndex() == -1){
-						lblToolTip.setText("Please select the member you want to add through the list first!");
-					} else {
-						String temp  = listUsers.getSelectedValue();
-						if (temp.equals(user)){
-							lblToolTip.setText("Please do not try to add yourself!");
+				if (!user.equals("")) {
+					if (btnGroupCreate.getText().equals("Create")) {
+						if (textFieldGroup.getText().equals("")) {
+							lblToolTip.setText("Please enter a group name first!");
 						} else {
-							String requestMessage = groupAddCmd + activeGroup + separatorTrail + temp;
-							lblToolTip.setText("Member added!");
-							sendBroadcastData(requestMessage);
+
+							//Append a new address for the group
+							String addressForNewGroup = baseReservedAdd + String.valueOf(toReserveX)
+									+ "." + String.valueOf(toReserveY);
+							//Refresh X and Y IP address parts incase of new creation
+							toReserveX = 2 + ran.nextInt(254);
+							toReserveY = 2 + ran.nextInt(254);
+
+							String requestMsg = groupCheckCmd + textFieldGroup.getText() + separatorTrail + user + groupSeparatorTrail + addressForNewGroup;
+							isCreatingGuy = 1;
+							lblToolTip.setText("Connecting... Please wait.");
+							sendBroadcastData(requestMsg);
+						}
+					} else {
+						if (listUsers.getSelectedIndex() == -1) {
+							lblToolTip.setText("Please select the member you want to add through the list first!");
+						} else {
+							String temp = listUsers.getSelectedValue();
+							if (temp.equals(user)) {
+								lblToolTip.setText("Please do not try to add yourself!");
+							} else {
+								String requestMessage = groupAddCmd + activeGroup + separatorTrail + temp;
+								lblToolTip.setText("Member added!");
+								sendBroadcastData(requestMessage);
+							}
 						}
 					}
+				} else {
+					lblToolTip.setText("Please register for a user name first!");
 				}
 			}
 		});
@@ -257,26 +261,28 @@ public class WhatsChatClient extends JFrame {
 		JButton btnGroupDelete = new JButton("Delete");
 		btnGroupDelete.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (btnGroupDelete.getText().equals("Delete")){
-					if (textFieldGroup.getText().equals("")) {
-						lblToolTip.setText("Please don't try to delete with an empty name");
-					} else {
-						String requestMessage = groupDelCmd + textFieldGroup.getText();
-						lblToolTip.setText("Connecting... Please wait.");
-						sendBroadcastData(requestMessage);
-					}
-
-				} else {
-					if (listUsers.getSelectedIndex() == -1){
-					lblToolTip.setText("Please select the member you want to remove through the list first!");
-					} else {
-						String temp  = listUsers.getSelectedValue();
-						if (temp.equals(user)){
-							lblToolTip.setText("Please do not try to remove yourself!");
+				if (!user.equals("")) {
+					if (btnGroupDelete.getText().equals("Delete")) {
+						if (textFieldGroup.getText().equals("")) {
+							lblToolTip.setText("Please don't try to delete with an empty name");
 						} else {
-							String requestMessage = groupRemvCmd + activeGroup + separatorTrail + temp;
-							lblToolTip.setText("Member removed!");
+							String requestMessage = groupDelCmd + textFieldGroup.getText();
+							lblToolTip.setText("Connecting... Please wait.");
 							sendBroadcastData(requestMessage);
+						}
+
+					} else {
+						if (listUsers.getSelectedIndex() == -1) {
+							lblToolTip.setText("Please select the member you want to remove through the list first!");
+						} else {
+							String temp = listUsers.getSelectedValue();
+							if (temp.equals(user)) {
+								lblToolTip.setText("Please do not try to remove yourself!");
+							} else {
+								String requestMessage = groupRemvCmd + activeGroup + separatorTrail + temp;
+								lblToolTip.setText("Member removed!");
+								sendBroadcastData(requestMessage);
+							}
 						}
 					}
 				}
@@ -288,18 +294,18 @@ public class WhatsChatClient extends JFrame {
 		JButton btnGroupEdit = new JButton("Edit Group Name");
 		btnGroupEdit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (btnGroupEdit.getText().equals("Edit Group Name")){
-					if (textFieldGroup.getText().equals("") || textFieldGroup.getText().equals(activeGroup)){
-						lblToolTip.setText("Please don't try to edit with an empty name or the same name!");
+				if (!user.equals("")) {
+					if (btnGroupEdit.getText().equals("Edit Group Name")) {
+						if (textFieldGroup.getText().equals("") || textFieldGroup.getText().equals(activeGroup)) {
+							lblToolTip.setText("Please don't try to edit with an empty name or the same name!");
+						} else {
+							String requestMessage = groupEditCmd + activeGroup + separatorTrail + textFieldGroup.getText();
+							lblToolTip.setText("Connecting... Please wait.");
+							sendBroadcastData(requestMessage);
+						}
 					} else {
-						String requestMessage = groupEditCmd + activeGroup + separatorTrail + textFieldGroup.getText();
-						lblToolTip.setText("Connecting... Please wait.");
-						sendBroadcastData(requestMessage);
-
-						activeGroup = textFieldGroup.getText();
+						toggleUserListUI(lblUserlist);
 					}
-				} else {
-					toggleUserListUI(lblUserlist);
 				}
 			}
 		});
@@ -456,6 +462,7 @@ public class WhatsChatClient extends JFrame {
 										//Give a notice that name has been taken already
 										if(isRegisterGuy == 1) {
 											lblToolTip.setText("Username is invalid, please choose another name.");
+											textFieldUser.setEditable(true);
 											btnRegister.setEnabled(true);
 
 											isRegisterGuy = 0;
@@ -536,6 +543,8 @@ public class WhatsChatClient extends JFrame {
 
 											refreshTextArea(textArea);
 
+											lblToolTip.setText("You have been added to the group: " + addToGroup);
+
 											//Request for chat history if this instance doesn't have it
 											if (chatHistory.get(addToGroup) == null || chatHistory.get(addToGroup).size() < 2){
 												String requestChatMessage = lastMsgReqCmd + addToGroup + separatorTrail + user;
@@ -575,7 +584,7 @@ public class WhatsChatClient extends JFrame {
 											leaveGroup(remvFrmGroup);
 											refreshTextArea(textArea);
 											updateGroupUIList();
-											lblToolTip.setText("You have been removed from a group...");
+											lblToolTip.setText("You have been removed from the group: " + remvFrmGroup);
 										}
 										
 										//Update the group members to remove the new guy
@@ -608,6 +617,8 @@ public class WhatsChatClient extends JFrame {
 									//Split up old group name and new group name
 									String oldGroupName = editGroupMessage.substring(0, editGroupMessage.indexOf(separatorTrail));
 									String newGroupName = editGroupMessage.substring(editGroupMessage.indexOf(separatorTrail) + 3);
+
+									System.out.println(oldGroupName);
 									
 									//Check if new group name already exists
 									if (!runGroupNameCheck(newGroupName)){
@@ -628,18 +639,20 @@ public class WhatsChatClient extends JFrame {
 										//Update group conversation list hashmap and remove old details
 										if (chatHistory.get(oldGroupName) != null) {
 											ArrayList<String> tempConvoHist = chatHistory.get(oldGroupName);
-											groupMembers.put(newGroupName, tempConvoHist);
+											chatHistory.put(newGroupName, tempConvoHist);
 											chatHistory.remove(oldGroupName);
 										}
 
 										//Update local group list
-										groupList.set(groupList.indexOf(oldGroupName + " - Active"), newGroupName);
+										if (activeGroup.equals(oldGroupName)) {
+											groupList.set(groupList.indexOf(oldGroupName + " - Active"), newGroupName + " - Active");
+											activeGroup = newGroupName;
+										} else {
+											groupList.set(groupList.indexOf(oldGroupName), newGroupName);
+										}
 
 										updateGroupUIList();
-										if (activeGroup.equals(newGroupName)) {
-											swapActiveGroupUI("", activeGroup);
-										}
-										lblToolTip.setText("Group name changed successfully!");
+										lblToolTip.setText(oldGroupName + "changed name to: " + newGroupName);
 									} else {
 										//Inform user that they cannot use the new name
 										lblToolTip.setText("Group name already taken, please choose another.");
