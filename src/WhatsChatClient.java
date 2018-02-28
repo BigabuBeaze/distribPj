@@ -771,7 +771,6 @@ public class WhatsChatClient extends JFrame {
 				return true;
 			}
 		}
-		
 		return false;
 	}
 	
@@ -907,6 +906,7 @@ public class WhatsChatClient extends JFrame {
 		String returnMsg = grpListRecvCmd;
 		if (groups.size() > 0){
 			for (Map.Entry<String, String> entry : groups.entrySet()){
+
 				String name = entry.getKey();
 				String ipAdd = entry.getValue();
 
@@ -919,6 +919,9 @@ public class WhatsChatClient extends JFrame {
 
 				returnMsg += name + groupSeparatorTrail + ipAdd + ipSeparatorTrail + users;
 				System.out.println(returnMsg);
+
+				grpListRecvCmd += groupSeparatorTrail;
+
 			}
 
 			sendBroadcastData(returnMsg);
@@ -965,7 +968,9 @@ public class WhatsChatClient extends JFrame {
 				String temp  = tempGroups.get(i).trim();
 				tempGroups.set(i, temp);
 			}
-			tempGroups.remove(tempGroups.size()-1);
+			if (tempGroups.size() > 1) {
+				tempGroups.remove(tempGroups.size() - 1);
+			}
 			System.out.println(tempGroups);
 
 			String[] list2;
@@ -978,20 +983,21 @@ public class WhatsChatClient extends JFrame {
 				System.out.println(pack);
 				groupName = pack.substring(0, pack.indexOf(groupSeparatorTrail));
 				groupIP = pack.substring(pack.indexOf(groupSeparatorTrail) + 3, pack.indexOf(ipSeparatorTrail));
-				members = pack.substring(pack.indexOf(groupSeparatorTrail) + 3);
+				members = pack.substring(pack.indexOf(ipSeparatorTrail) + 3);
 				list2 = members.split(msgSeparatorTrail);
 
 				tempMembers = new ArrayList<String>(Arrays.asList(list2));
 
-				for (int i = 0; i < tempGroups.size(); i++){
-					String temp  = tempGroups.get(i).trim();
-					tempGroups.set(i, temp);
+				for (int i = 0; i < tempMembers.size(); i++){
+					String temp  = tempMembers.get(i).trim();
+					tempMembers.set(i, temp);
 				}
-				tempGroups.remove(tempGroups.size()-1);
-
-				System.out.println(groupName + " : " + groupIP + " : " + tempGroups);
+				if (tempMembers.size() > 1) {
+					tempMembers.remove(tempMembers.size() - 1);
+				}
+				System.out.println(groupName + " : " + groupIP + " : " + tempMembers);
 				groups.put(groupName, groupIP);
-				groupMembers.put(groupName, tempGroups);
+				groupMembers.put(groupName, tempMembers);
 			}
 			System.out.println(groups);
 			System.out.println(groupMembers);
