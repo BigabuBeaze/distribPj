@@ -8,12 +8,9 @@ import java.awt.FlowLayout;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
+import java.awt.event.*;
 
 //Multicast stuff
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.net.DatagramPacket;
@@ -76,6 +73,7 @@ public class WhatsChatClient extends JFrame {
 	String userListRecvCmd = "n/.";
 	String grpListRecvCmd = "q/.";
 	String groupDelCmd = "d/.";
+	String leavNetCmd = "f/.";
 	
 	String groupSeparatorTrail = "g/."; //Used to differentiate between user and group name for chat history
 	String userSeparatorTrail = "-"; //Used to differentiate between user names
@@ -140,6 +138,13 @@ public class WhatsChatClient extends JFrame {
 		
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				sendLeaveMsg();
+				super.windowClosing(e);
+			}
+		});
 		setBounds(100, 100, 998, 583);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -176,8 +181,9 @@ public class WhatsChatClient extends JFrame {
 						lblToolTip.setText("Connecting... Please wait.");
 						sendBroadcastData(requestMsg);
 					}
-				} else {
-
+//				} else {
+//					sendLeaveMsg();
+//					btnRegister.setText("Register User");
 				}
 			}
 		});
@@ -429,17 +435,19 @@ public class WhatsChatClient extends JFrame {
 //							if (initAction == 1) {
 								if (receivedMessage.substring(0, 3).equals(nameCheckCmd)){
 									String userCheck = receivedMessage.substring(3);
-									oldestUserCheck();
 									//Check name against the current table, also validate at the same time
 									if (runUserCheck(userCheck) == true){
+										if (isRegisterGuy == 1) {
+											oldestUserCheck();
+										}
 										//Update table nonetheless for other clients
 										userList.add(userCheck);
 										updateUserUIList();
 										if(isRegisterGuy == 1){	
 											//Update self name
 											user = userCheck;
-											btnRegister.setEnabled(true);
-											btnRegister.setText("Disconnect");
+//											btnRegister.setEnabled(true);
+//											btnRegister.setText("Disconnect");
 											lblToolTip.setText("Name has been registered! Create a group or wait for an invite!");
 											
 											isRegisterGuy = 0;
@@ -732,6 +740,15 @@ public class WhatsChatClient extends JFrame {
 									addGrpList(msgGrpRecvMessage);
 								}
 							}
+
+							//Message for updating user lists when someone leaves
+							if(receivedMessage.substring(0, 3).equals(leavNetCmd)){
+								String leavNetMessage = receivedMessage.substring(3);
+								String userToRemv = leavNetMessage.substring(0, leavNetMessage.indexOf(separatorTrail));
+								String groupsToRemv = leavNetMessage.substring(leavNetMessage.indexOf(separatorTrail) + 3);
+
+								updateLeaving(userToRemv, groupsToRemv, lblUserlist);
+							}
 							
 						} catch (IOException ex){
 							ex.printStackTrace();
@@ -849,30 +866,6 @@ public class WhatsChatClient extends JFrame {
 		}
 	}
 	
-	//Updates user list when someone leaves the network
-	private void leaveMagic(String longtext){
-		String username = longtext.substring(0, longtext.indexOf(separatorTrail));
-		String groupText = longtext.substring(longtext.indexOf(separatorTrail) + 3);
-		String[] groups = groupText.split(groupSeparatorTrail);
-		for (int i = 0; i < groups.length; i++){
-			if(groupMembers.get(groups[i]) != null){
-				ArrayList<String> tempList = groupMembers.get(groups[i]);
-				tempList.remove(username);
-				if (user.equals(tempList.get(i))){
-					isOldestGrpMem.put(groups[i], 1);
-				}
-				groupMembers.put(groups[i], tempList);
-			}
-		}
-		userList.remove(username);
-		if (user.equals(userList.get(0))){
-			isOldestUser = 1;
-		}
-		
-		updateUserUIList();
-		updateGroupUIList();
-	}
-	
 	//Sends out the chat history, up to 10 last messages 
 	private void replyChatHistory(String requestor, String groupName){
 		int limiter;
@@ -962,7 +955,10 @@ public class WhatsChatClient extends JFrame {
 
 	//Adds in group list from oldest network user
 	private void addGrpList(String groupString){
+		System.out.println("Check 1");
+		System.out.println(groupString);
 		if (!groupString.equals("none")){
+			System.out.println("Check 2");
 			String[] list = groupString.split(userSeparatorTrail);
 			ArrayList<String> tempGroups = new ArrayList<String>(Arrays.asList(list));
 			for (int i = 0; i < tempGroups.size(); i++){
@@ -970,6 +966,7 @@ public class WhatsChatClient extends JFrame {
 				tempGroups.set(i, temp);
 			}
 			tempGroups.remove(tempGroups.size()-1);
+			System.out.println(tempGroups);
 
 			String[] list2;
 			String groupName;
@@ -978,6 +975,7 @@ public class WhatsChatClient extends JFrame {
 			ArrayList<String> tempMembers;
 			//Get users in groups
 			for (String pack : tempGroups){
+				System.out.println(pack);
 				groupName = pack.substring(0, pack.indexOf(groupSeparatorTrail));
 				groupIP = pack.substring(pack.indexOf(groupSeparatorTrail) + 3, pack.indexOf(ipSeparatorTrail));
 				members = pack.substring(pack.indexOf(groupSeparatorTrail) + 3);
@@ -995,6 +993,8 @@ public class WhatsChatClient extends JFrame {
 				groups.put(groupName, groupIP);
 				groupMembers.put(groupName, tempGroups);
 			}
+			System.out.println(groups);
+			System.out.println(groupMembers);
 
 			updateGroupUIList();
 		}
@@ -1103,6 +1103,92 @@ public class WhatsChatClient extends JFrame {
 				textArea.append(text + "\n");
 			}
 		}
+	}
 
+	//When someone leaves the network, everyone is to update their lists that contain that user
+	public void updateLeaving(String userName, String groupNames, JLabel lblUserList){
+		System.out.println("Update leave: " + userName + " : " + groupNames);
+
+		//userName variable refers to the name of the guy who left
+		//groupNames will be the leaving guy's list of groups that he's joined
+
+		//Remove the guy from other online people's lists
+		userList.remove(userName);
+
+		//Check if self becomes oldest member in the network
+		if (!user.equals("")) {
+			if (userList != null || user != null || user.equals(userList.get(0))) {
+				isOldestUser = 1;
+			}
+		}
+
+		//Remove the guy from other online people's groupmember lists
+
+		//Gather all the group names the leaver belongs to
+		if (!groupNames.equals("none")){
+			String[] temp = groupNames.split(msgSeparatorTrail);
+			ArrayList<String> tempGroups = new ArrayList<String>(Arrays.asList(temp));
+			for (int i = 0; i < tempGroups.size(); i++){
+				String tempName  = tempGroups.get(i).trim();
+				tempGroups.set(i, tempName);
+			}
+			tempGroups.remove(tempGroups.size()-1);
+
+			//Remove the leaver from the groups
+			for (String groupName : tempGroups){
+				if(groupMembers.get(groupName) != null){
+					ArrayList<String> names = groupMembers.get(groupName);
+					names.remove(userName);
+
+					//Check if self becomes the oldest member of the group
+					if (!user.equals("")) {
+						if (names.size() > 0) {
+							if (user.equals(names.get(0))) {
+								isOldestGrpMem.put(groupName, 1);
+							}
+						}
+					}
+					//Update groupMembers
+					groupMembers.put(groupName, names);
+				}
+			}
+		}
+
+		//Update UI lists
+		if (lblUserList.getText().equals("Current Group")){
+			userListModel = new DefaultListModel<String>();
+			ArrayList<String> tempList = groupMembers.get(activeGroup);
+			for (String user : tempList){
+				userListModel.addElement(user);
+			}
+			listUsers.setModel(userListModel);
+		} else {
+			updateUserUIList();
+		}
+		updateGroupUIList();
+	}
+
+	//Send disconnect message
+	public void sendLeaveMsg(){
+		if (!user.equals("")){
+			//Prepare message to send
+			String requestMessage = leavNetCmd + user + separatorTrail;
+
+			//Generate groups string
+			String groupNames = "";
+			if (groupList.size() > 0) {
+				for (String groupName : groupList) {
+					if (activeGroup.equals(groupName)){
+						groupName = groupName.substring(0, groupName.length() - 9);
+					}
+					groupNames += groupName + msgSeparatorTrail + " ";
+				}
+			} else {
+				groupNames = "none";
+			}
+			requestMessage += groupNames;
+
+			sendBroadcastData(requestMessage);
+		}
 	}
 }
