@@ -596,6 +596,8 @@ public class WhatsChatClient extends JFrame {
 											updateGroupUIList();
 											lblToolTip.setText("You have been removed from the group: " + remvFrmGroup);
 											leaveGroupPt2(remvFrmGroup);
+										} else {
+											lblToolTip.setText(userToRemv + " has been removed from the group: " + remvFrmGroup);
 										}
 										
 										//Update the group members to remove the new guy
@@ -698,7 +700,7 @@ public class WhatsChatClient extends JFrame {
 									chatHistory.remove(delGroupMsg);
 
 									//Refresh UI
-									lblToolTip.setText("Group deleted!");
+									lblToolTip.setText("The group: " + delGroupMsg + "has been deleted!");
 									updateGroupUIList();
 									updateUserUIList();
 

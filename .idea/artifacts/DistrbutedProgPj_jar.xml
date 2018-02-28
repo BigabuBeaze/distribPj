@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="DistrbutedProgPj:jar">
+    <output-path>$PROJECT_DIR$/classes/artifacts/DistrbutedProgPj_jar</output-path>
+    <root id="archive" name="DistrbutedProgPj.jar">
+      <element id="module-output" name="DistrbutedProgPj" />
+    </root>
+  </artifact>
+</component>
