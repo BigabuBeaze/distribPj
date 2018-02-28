@@ -276,13 +276,13 @@ public class WhatsChatClient extends JFrame {
 							lblToolTip.setText("Please select the member you want to remove through the list first!");
 						} else {
 							String temp = listUsers.getSelectedValue();
-							if (temp.equals(user)) {
-								lblToolTip.setText("Please do not try to remove yourself!");
-							} else {
+//							if (temp.equals(user)) {
+//								lblToolTip.setText("Please do not try to remove yourself!");
+//							} else {
 								String requestMessage = groupRemvCmd + activeGroup + separatorTrail + temp;
 								lblToolTip.setText("Member removed!");
 								sendBroadcastData(requestMessage);
-							}
+//							}
 						}
 					}
 				}
@@ -348,6 +348,7 @@ public class WhatsChatClient extends JFrame {
 							activeGroup = groupName;
 							textFieldGroup.setText(groupName);
 
+							updateUserUIList();
 							refreshTextArea(textArea);
 						} else {
 							textFieldGroup.setText(activeGroup);
@@ -542,6 +543,7 @@ public class WhatsChatClient extends JFrame {
 											btnGroupEdit.setText("Toggle user list");
 
 											refreshTextArea(textArea);
+											updateUserUIList();
 
 											lblToolTip.setText("You have been added to the group: " + addToGroup);
 
@@ -582,9 +584,10 @@ public class WhatsChatClient extends JFrame {
 										//User in question will leave the group stated
 										if (user.equals(userToRemv)){
 											leaveGroup(remvFrmGroup);
-											refreshTextArea(textArea);
+//											refreshTextArea(textArea);
 											updateGroupUIList();
 											lblToolTip.setText("You have been removed from the group: " + remvFrmGroup);
+											leaveGroupPt2(remvFrmGroup);
 										}
 										
 										//Update the group members to remove the new guy
@@ -608,6 +611,8 @@ public class WhatsChatClient extends JFrame {
 										if (user.equals(groupMembers.get(remvFrmGroup).get(0))){
 											isOldestGrpMem.put(remvFrmGroup, 1);
 										}
+
+										updateUserUIList();
 									}
 								}
 								
@@ -687,6 +692,9 @@ public class WhatsChatClient extends JFrame {
 									//Refresh UI
 									lblToolTip.setText("Group deleted!");
 									updateGroupUIList();
+									updateUserUIList();
+
+									leaveGroupPt2(delGroupMsg);
 								}
 							}
 //
@@ -857,25 +865,39 @@ public class WhatsChatClient extends JFrame {
 	private void leaveGroup(String groupName){
 		try{
 			String groupAdd = groups.get(groupName);
-			multicastGroup = InetAddress.getByName(groupAdd);
 			
 			sendData(groupAdd + groupSeparatorTrail + user + " has left the group.");
-			
-			multicastSocket.leaveGroup(multicastGroup);
 
 			//Clear group details
-			chatHistory.remove(groupName);
+			//chatHistory.remove(groupName);
 			if (activeGroup.equals(groupName)){
-				activeGroup = "";
 				groupList.remove(groupName + " - Active");
+
+				if (groupList.size() > 0){
+					activeGroup = groupList.get(0);
+					String temp = activeGroup + " - Active";
+					groupList.set(0, temp);
+				} else {
+					activeGroup = "";
+				}
 			} else {
 				groupList.remove(groupName);
 			}
-
-
 		} catch (Exception ex){
 			ex.printStackTrace();
 		}
+	}
+
+	//Isolated leaveGroup method due to bug
+	private void leaveGroupPt2(String groupName){
+		try {
+			String groupAdd = groups.get(groupName);
+			multicastGroup = InetAddress.getByName(groupAdd);
+			multicastSocket.leaveGroup(multicastGroup);
+		} catch (Exception ex){
+			ex.printStackTrace();
+		}
+
 	}
 	
 	//Sends out the chat history, up to 10 last messages 
