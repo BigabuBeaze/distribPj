@@ -1134,6 +1134,8 @@ public class WhatsChatClient extends JFrame {
 			}
 			tempGroups.remove(tempGroups.size()-1);
 
+			System.out.println(tempGroups);
+
 			//Remove the leaver from the groups
 			for (String groupName : tempGroups){
 				if(groupMembers.get(groupName) != null){
@@ -1178,10 +1180,12 @@ public class WhatsChatClient extends JFrame {
 			String groupNames = "";
 			if (groupList.size() > 0) {
 				for (String groupName : groupList) {
-					if (activeGroup.equals(groupName)){
-						groupName = groupName.substring(0, groupName.length() - 9);
+					System.out.println(activeGroup +  " compared to " + groupName);
+					if (groupName.length() > 9 && activeGroup.equals(groupName.substring(0, groupName.length() - 9))){
+						groupNames += groupName.substring(0, groupName.length() - 9) + msgSeparatorTrail + " ";
+					} else {
+						groupNames += groupName + msgSeparatorTrail + " ";
 					}
-					groupNames += groupName + msgSeparatorTrail + " ";
 				}
 			} else {
 				groupNames = "none";
