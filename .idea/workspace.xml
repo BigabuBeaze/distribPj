@@ -7,14 +7,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e8e53244-8383-483b-8240-3b8fa48ee5e1" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/WhatsChatClient$2.class" afterPath="$PROJECT_DIR$/bin/WhatsChatClient$2.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/WhatsChatClient$3.class" afterPath="$PROJECT_DIR$/bin/WhatsChatClient$3.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/WhatsChatClient$4.class" afterPath="$PROJECT_DIR$/bin/WhatsChatClient$4.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/WhatsChatClient$10.class" afterPath="$PROJECT_DIR$/bin/WhatsChatClient$10.class" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/WhatsChatClient$5.class" afterPath="$PROJECT_DIR$/bin/WhatsChatClient$5.class" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/WhatsChatClient$6.class" afterPath="$PROJECT_DIR$/bin/WhatsChatClient$6.class" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/WhatsChatClient$7.class" afterPath="$PROJECT_DIR$/bin/WhatsChatClient$7.class" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/WhatsChatClient$8.class" afterPath="$PROJECT_DIR$/bin/WhatsChatClient$8.class" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/WhatsChatClient$9.class" afterPath="$PROJECT_DIR$/bin/WhatsChatClient$9.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/WhatsChatClient.class" afterPath="$PROJECT_DIR$/bin/WhatsChatClient.class" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/WhatsChatClient.java" afterPath="$PROJECT_DIR$/src/WhatsChatClient.java" />
     </list>
@@ -34,10 +33,10 @@
       <file leaf-file-name="WhatsChatClient.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/WhatsChatClient.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="7854">
-              <caret line="529" column="62" lean-forward="false" selection-start-line="529" selection-start-column="62" selection-end-line="529" selection-end-column="62" />
+            <state relative-caret-position="450">
+              <caret line="472" column="72" lean-forward="false" selection-start-line="472" selection-start-column="72" selection-end-line="472" selection-end-column="72" />
               <folding>
-                <element signature="e#39482#39490#0" expanded="true" />
+                <element signature="e#39719#39727#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -325,7 +324,14 @@
       <option name="project" value="LOCAL" />
       <updated>1519872340432</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="... Error message fix with creating a group name">
+      <created>1519872489286</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1519872489286</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -378,7 +384,8 @@
     <MESSAGE value="ACTUALLY FIXED THE MOST IRRITATING LEAVE GROUP BUG" />
     <MESSAGE value="Added more instruction messages" />
     <MESSAGE value="Fixed very big error with new guys not receiving group details if there are more than 1 groups. Also added automated IP address checking for group creation" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed very big error with new guys not receiving group details if there are more than 1 groups. Also added automated IP address checking for group creation" />
+    <MESSAGE value="... Error message fix with creating a group name" />
+    <option name="LAST_COMMIT_MESSAGE" value="... Error message fix with creating a group name" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -390,7 +397,7 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#39482#39490#0" expanded="true" />
+            <element signature="e#39719#39727#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -400,7 +407,7 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#39482#39490#0" expanded="true" />
+            <element signature="e#39719#39727#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -410,7 +417,7 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#39482#39490#0" expanded="true" />
+            <element signature="e#39719#39727#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -420,7 +427,7 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#39482#39490#0" expanded="true" />
+            <element signature="e#39719#39727#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -430,7 +437,7 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#39482#39490#0" expanded="true" />
+            <element signature="e#39719#39727#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -440,7 +447,7 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#39482#39490#0" expanded="true" />
+            <element signature="e#39719#39727#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -450,7 +457,7 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#39482#39490#0" expanded="true" />
+            <element signature="e#39719#39727#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -460,17 +467,17 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#39482#39490#0" expanded="true" />
+            <element signature="e#39719#39727#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/WhatsChatClient.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="7854">
-          <caret line="529" column="62" lean-forward="false" selection-start-line="529" selection-start-column="62" selection-end-line="529" selection-end-column="62" />
+        <state relative-caret-position="450">
+          <caret line="472" column="72" lean-forward="false" selection-start-line="472" selection-start-column="72" selection-end-line="472" selection-end-column="72" />
           <folding>
-            <element signature="e#39482#39490#0" expanded="true" />
+            <element signature="e#39719#39727#0" expanded="true" />
           </folding>
         </state>
       </provider>

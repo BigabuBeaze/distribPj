@@ -264,6 +264,7 @@ public class WhatsChatClient extends JFrame {
 			}
 		});
 		btnGroupCreate.setBounds(30, 33, 97, 23);
+		btnGroupCreate.setEnabled(false);
 		panel.add(btnGroupCreate);
 		
 		JButton btnGroupDelete = new JButton("Delete");
@@ -297,6 +298,7 @@ public class WhatsChatClient extends JFrame {
 			}
 		});
 		btnGroupDelete.setBounds(163, 33, 97, 23);
+		btnGroupDelete.setEnabled(false);
 		panel.add(btnGroupDelete);
 		
 		JButton btnGroupEdit = new JButton("Edit Group Name");
@@ -318,6 +320,7 @@ public class WhatsChatClient extends JFrame {
 			}
 		});
 		btnGroupEdit.setBounds(293, 33, 172, 23);
+		btnGroupEdit.setEnabled(false);
 		panel.add(btnGroupEdit);
 		
 		JPanel panelGroups = new JPanel();
@@ -464,6 +467,10 @@ public class WhatsChatClient extends JFrame {
 //											btnRegister.setEnabled(true);
 //											btnRegister.setText("Disconnect");
 											lblToolTip.setText("Name has been registered! Create a group or wait for an invite!");
+
+											btnGroupCreate.setEnabled(true);
+											btnGroupDelete.setEnabled(true);
+											btnGroupEdit.setEnabled(true);
 											
 											isRegisterGuy = 0;
 										} 
