@@ -1,16 +1,19 @@
-import java.awt.BorderLayout;
-import java.awt.EventQueue;
+import sun.misc.BASE64Decoder;
+import sun.misc.BASE64Encoder;
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+import java.awt.*;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import java.awt.FlowLayout;
 
-import javax.swing.DefaultListModel;
-import javax.swing.JButton;
 import java.awt.event.*;
 
 //Multicast stuff
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.net.DatagramPacket;
@@ -26,16 +29,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Random;
 
-import javax.swing.JTextField;
-import javax.swing.JList;
 import javax.swing.border.TitledBorder;
-import javax.swing.UIManager;
-import java.awt.Color;
-import javax.swing.JTextArea;
-import javax.swing.JScrollPane;
-import javax.swing.JLabel;
-import javax.swing.ListSelectionModel;
-import javax.swing.SwingConstants;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 
@@ -46,6 +40,11 @@ public class WhatsChatClient extends JFrame {
 	InetAddress multicastGroupDirectory = null;
 	InetAddress multicastGroup = null;
 	String user = null; //Need validation, no spaces, no starting with numbers
+	String userDesc = null; //Used to keep track of user description of this instance, if any
+	String userImg = null; //Used to keep track of image of this instance, if any
+	String selectedUserP = null; //... Selected user's profile
+	String selectedUserDesc = null;//... Selected user's profile desc
+	String selectedUserImg = null;//... Selected user's profile img
 	ArrayList<String> groupList = null; //Used to keep track of the groups the instance is in
 	ArrayList<String> userList = null; //Used to keep list of whoever's online
 	Map<String, String> groups = null; //Map with group name, and IP address
@@ -74,11 +73,14 @@ public class WhatsChatClient extends JFrame {
 	String grpListRecvCmd = "q/.";
 	String groupDelCmd = "d/.";
 	String leavNetCmd = "f/.";
+	String profileReqCmd = "p/.";
+	String profileRecvCmd = "i/.";
 	
 	String groupSeparatorTrail = "g/."; //Used to differentiate between user and group name for chat history
 	String userSeparatorTrail = "-"; //Used to differentiate between user names
 	String msgSeparatorTrail = "="; //Used to differentiate between chat messages
 	String ipSeparatorTrail = "]";
+	String profileSeparatorTrail = "::::"; // Used to differentiate profile photo and short description
 	
 	DefaultListModel<String> userListModel = null; //use addElement to add into list, 
 	DefaultListModel<String> groupListModel = null; //list = new JList(listModel) to update Jlist
@@ -86,6 +88,7 @@ public class WhatsChatClient extends JFrame {
 	int isRegisterGuy = 0; //Used to check if this instance is from the guy who wants to register
 	int isCreatingGuy = 0; //Used to check if this instance is from the guy who wants to create a new group
 	int isOldestUser = 0; //Used to check if this instance is the oldest guy who joined the instance
+	int isProfileAsker = 0; //Used to check if this instance is the guy asking for profile
 	Map<String, Integer> isOldestGrpMem = null; //Used to check if this instance is oldest guy of certain groups
 	
 	String activeGroup = null; //Use to see which group is active for the instance
@@ -101,6 +104,18 @@ public class WhatsChatClient extends JFrame {
 	private JTextField textFieldTextMsg;
 	private JList<String> listUsers;
 	private JList<String> listGroups;
+
+	//Profile image variables
+	JLabel lblProfilePhoto;
+	BufferedImage bufProfile;
+
+	/* Flags and sizes */
+	public static int HEADER_SIZE = 8;
+	public static int MAX_PACKETS = 255;
+	public static int SESSION_START = 128;
+	public static int SESSION_END = 64;
+	public static int DATAGRAM_MAX_SIZE = 65507 - HEADER_SIZE;
+	public static int MAX_SESSION_NUMBER = 255;
 
 	/**
 	 * Launch the application.
@@ -132,6 +147,13 @@ public class WhatsChatClient extends JFrame {
 		chatHistory = new HashMap<String, ArrayList<String>>(); //Map with chat history, by group name
 		userListModel = new DefaultListModel<String>(); //use addElement to add into list, 
 		groupListModel = new DefaultListModel<String>(); //list = new JList(listModel) to update Jlist
+
+		userDesc = ""; //Used to keep track of user description of this instance, if any
+		userImg = ""; //Used to keep track of image of this instance, if any
+		selectedUserP = ""; //... Selected user's profile
+		selectedUserDesc = "";//... Selected user's profile desc
+		selectedUserImg = "";//... Selected user's profile img
+
 		
 		isOldestGrpMem = new HashMap<String, Integer>(); //Used to check if this instance is oldest guy of certain groups
 		activeGroup = ""; //Use to see which group is active for the instance
@@ -158,21 +180,95 @@ public class WhatsChatClient extends JFrame {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
-		
-		JLabel lblUserlist = new JLabel("All");
-		lblUserlist.setBounds(109, 206, 116, 14);
-		contentPane.add(lblUserlist);
-		lblUserlist.setHorizontalAlignment(SwingConstants.RIGHT);
 
+		//Instruction
 		JPanel panelTips = new JPanel();
 		panelTips.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Instructions", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		panelTips.setBounds(4, 38, 475, 37);
 		contentPane.add(panelTips);
 		panelTips.setLayout(null);
-		
+
 		JLabel lblToolTip = new JLabel("Please register a name.");
 		lblToolTip.setBounds(6, 16, 459, 14);
 		panelTips.add(lblToolTip);
+
+		//Profile UI
+		JPanel panelProfile = new JPanel();
+		panelProfile.setBounds(543, 11, 418, 120);
+		panelProfile.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Profile",
+				TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		contentPane.add(panelProfile);
+
+		JButton btnUpload = new JButton("Upload");
+		btnUpload.setEnabled(false);
+		btnUpload.setBounds(238, 91, 78, 23);
+		btnUpload.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				JFileChooser chooser = new JFileChooser();
+				chooser.showOpenDialog(null);
+				File f = chooser.getSelectedFile();
+				System.out.println(f.length());
+				if (f.length() < (50 * 1024)) {
+					try {
+						bufProfile = scaleImage(120, 120, ImageIO.read(new File(f.getAbsolutePath())));
+						ImageIcon profileIcon = new ImageIcon(bufProfile);// get the image from file chooser and scale it to
+						// match JLabel size
+						lblProfilePhoto.setIcon(profileIcon);
+					} catch (Exception ex) {
+						ex.printStackTrace();
+					}
+				} else {
+					lblToolTip.setText("Please choose a file with a size of less than 50Kb!");
+				}
+			}
+		});
+
+		panelProfile.setLayout(null);
+		panelProfile.add(btnUpload);
+
+		lblProfilePhoto = new JLabel("");
+		lblProfilePhoto.setHorizontalAlignment(SwingConstants.CENTER);
+		lblProfilePhoto.setBounds(277, 11, 86, 69);
+		panelProfile.add(lblProfilePhoto);
+
+		JTextArea textAreaDescription = new JTextArea();
+		textAreaDescription.setEditable(false);
+		textAreaDescription.setBounds(10, 56, 210, 45);
+		panelProfile.add(textAreaDescription);
+
+		JButton btnSave = new JButton("Save");
+		btnSave.setEnabled(false);
+		btnSave.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (lblProfilePhoto.getIcon() == null || textAreaDescription.getText().toString().equals("")) {
+					lblToolTip.setText("Please include both a short description and upload a photo!");
+				} else {
+					String imageData = encodeToString(bufProfile, "jpg");
+					userDesc = textAreaDescription.getText().toString();
+					userImg = imageData;
+					lblToolTip.setText("User profile saved!");
+				}
+			}
+		});
+		btnSave.setBounds(322, 91, 89, 23);
+		panelProfile.add(btnSave);
+
+		JLabel lblProfileName = new JLabel("Name:");
+		lblProfileName.setBounds(10, 17, 40, 14);
+		panelProfile.add(lblProfileName);
+
+		JLabel lblChoosenName = new JLabel("-");
+		lblChoosenName.setBounds(60, 17, 106, 14);
+		panelProfile.add(lblChoosenName);
+
+		JLabel lblDescription = new JLabel("Description:");
+		lblDescription.setBounds(10, 38, 75, 14);
+		panelProfile.add(lblDescription);
+
+		JLabel lblUserlist = new JLabel("All");
+		lblUserlist.setBounds(109, 206, 116, 14);
+		contentPane.add(lblUserlist);
+		lblUserlist.setHorizontalAlignment(SwingConstants.RIGHT);
 		
 		JButton btnRegister = new JButton("Register User");
 		btnRegister.addActionListener(new ActionListener() {
@@ -189,9 +285,6 @@ public class WhatsChatClient extends JFrame {
 						lblToolTip.setText("Connecting... Please wait.");
 						sendBroadcastData(requestMsg);
 					}
-//				} else {
-//					sendLeaveMsg();
-//					btnRegister.setText("Register User");
 				}
 			}
 		});
@@ -215,6 +308,29 @@ public class WhatsChatClient extends JFrame {
 		
 		listUsers = new JList<String>();
 		listUsers.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		listUsers.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent evt) {
+				if (evt.getClickCount() == 2) {
+					if(listUsers.getSelectedIndex() > -1){
+						if (user.equals(listUsers.getSelectedValue())){
+							selectedUserP = "";
+							selectedUserDesc = "";
+							selectedUserImg = "";
+
+							btnSave.setEnabled(true);
+							btnUpload.setEnabled(true);
+
+							updateProfilePanel(textAreaDescription, lblChoosenName, lblProfilePhoto);
+						} else {
+							isProfileAsker = 1;
+							selectedUserP = listUsers.getSelectedValue();
+							String requestMessage = profileReqCmd + selectedUserP;
+							sendBroadcastData(requestMessage);
+						}
+					}
+				}
+			}
+		});
 		scrollPaneUsers.setViewportView(listUsers);
 		
 		JPanel panel = new JPanel();
@@ -335,18 +451,18 @@ public class WhatsChatClient extends JFrame {
 
 		JPanel panelChat = new JPanel();
 		panelChat.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Chat Box", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
-		panelChat.setBounds(543, 38, 430, 452);
+		panelChat.setBounds(543, 135, 430, 355);
 		contentPane.add(panelChat);
 		panelChat.setLayout(null);
 
 		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(10, 21, 410, 420);
+		scrollPane.setBounds(10, 21, 410, 323);
 		panelChat.add(scrollPane);
 
 		JTextArea textArea = new JTextArea();
 		scrollPane.setViewportView(textArea);
 		textArea.setEditable(false);
-		
+
 		JPanel panelChosenGrp = new JPanel();
 		panelChosenGrp.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Group Name", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		panelChosenGrp.setBounds(4, 158, 475, 43);
@@ -385,7 +501,7 @@ public class WhatsChatClient extends JFrame {
 							activeGroup = groupName;
 							textFieldGroup.setText(groupName);
 
-							updateUserUIList();
+							updateUserUIList(lblUserlist);
 							refreshTextArea(textArea);
 						} else {
 							textFieldGroup.setText(activeGroup);
@@ -426,6 +542,8 @@ public class WhatsChatClient extends JFrame {
 		});
 		btnSend.setBounds(884, 512, 89, 23);
 		contentPane.add(btnSend);
+
+
 		
 		//Initiate link to broadcast multicast group
 		try{
@@ -437,14 +555,13 @@ public class WhatsChatClient extends JFrame {
 			new Thread(new Runnable() {
 				@Override
 				public void run() {
-					byte buf[] = new byte[1000];
+					byte buf[] = new byte[DATAGRAM_MAX_SIZE];
 					DatagramPacket dgpRecieved
 						= new DatagramPacket(buf, buf.length);
 
 					
 					//Request for list of users
 					String requestMessage = userListReqCmd;
-					System.out.println("Sending request for userList");
 					sendBroadcastData(requestMessage);
 					
 					while(true) {
@@ -460,25 +577,39 @@ public class WhatsChatClient extends JFrame {
 									String userCheck = receivedMessage.substring(3);
 									//Check name against the current table, also validate at the same time
 									if (runUserCheck(userCheck) == true){
-										if (isRegisterGuy == 1) {
-											oldestUserCheck();
-										}
-										//Update table nonetheless for other clients
-										userList.add(userCheck);
-										updateUserUIList();
-										if(isRegisterGuy == 1){	
-											//Update self name
-											user = userCheck;
+										if (isAlphaNumeric(userCheck)) {
+											if (isRegisterGuy == 1) {
+												oldestUserCheck();
+											}
+											//Update table nonetheless for other clients
+											userList.add(userCheck);
+											updateUserUIList(lblUserlist);
+											if (isRegisterGuy == 1) {
+												//Update self name
+												user = userCheck;
 //											btnRegister.setEnabled(true);
 //											btnRegister.setText("Disconnect");
-											lblToolTip.setText("Name has been registered! Create a group or wait for an invite!");
+												lblToolTip.setText("Name has been registered! Create a group or wait for an invite!");
 
-											btnGroupCreate.setEnabled(true);
-											btnGroupDelete.setEnabled(true);
-											btnGroupEdit.setEnabled(true);
-											
-											isRegisterGuy = 0;
-										} 
+												btnGroupCreate.setEnabled(true);
+												btnGroupDelete.setEnabled(true);
+												btnGroupEdit.setEnabled(true);
+
+												//Enable profiling
+												selectedUserP = "";
+												selectedUserDesc = "";
+												selectedUserImg = "";
+
+												btnSave.setEnabled(true);
+												btnUpload.setEnabled(true);
+
+												updateProfilePanel(textAreaDescription, lblChoosenName, lblProfilePhoto);
+
+												isRegisterGuy = 0;
+											}
+										} else {
+											lblToolTip.setText("Please only include alphanumeric characters in your name!");
+										}
 									} else {
 										//Give a notice that name has been taken already
 										if(isRegisterGuy == 1) {
@@ -499,43 +630,46 @@ public class WhatsChatClient extends JFrame {
 									String ipAdd = groupCreateCheck.substring(groupCreateCheck.indexOf(groupSeparatorTrail) + 3);
 									//Check group name against current table.
 									if (!runGroupNameCheck(groupName)){
-										
-										if(isCreatingGuy == 1){
-											//Join the group
-											ipAdd = checkGroupIP(ipAdd);
-											joinGroup(ipAdd, textArea, groupName);
-											groupList.add(groupName);
-											updateGroupUIList();
+										if(isAlphaNumeric(groupName)) {
+											if (isCreatingGuy == 1) {
+												//Join the group
+												ipAdd = checkGroupIP(ipAdd);
+												joinGroup(ipAdd, textArea, groupName);
+												groupList.add(groupName);
+												updateGroupUIList();
 
-											swapActiveGroupUI(activeGroup, groupName);
-											activeGroup = groupName;
+												swapActiveGroupUI(activeGroup, groupName);
+												activeGroup = groupName;
 
-											lblToolTip.setText("Group created!");
+												lblToolTip.setText("Group created!");
 
-											panel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Member Management", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
-											btnGroupCreate.setText("Add");
-											btnGroupDelete.setText("Remove");
-											btnGroupEdit.setText("Toggle user list");
+												panel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Member Management", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+												btnGroupCreate.setText("Add");
+												btnGroupDelete.setText("Remove");
+												btnGroupEdit.setText("Toggle user list");
 
-											btnUnselect.setEnabled(true);
+												btnUnselect.setEnabled(true);
 
-											//Instance becomes oldest member of group
-											isOldestGrpMem.put(groupName, 1);
+												//Instance becomes oldest member of group
+												isOldestGrpMem.put(groupName, 1);
 
-											refreshTextArea(textArea);
+												refreshTextArea(textArea);
 
-											isCreatingGuy = 0;
-										}
-										//Update table nonetheless for other clients
-										groups.put(groupName, ipAdd);
-										ArrayList<String> tempMembers = new ArrayList<String>();
-										if (groupMembers.get(groupName) != null){
-											tempMembers = groupMembers.get(groupName);
-											tempMembers.add(name);
-											groupMembers.put(groupName, tempMembers);
+												isCreatingGuy = 0;
+											}
+											//Update table nonetheless for other clients
+											groups.put(groupName, ipAdd);
+											ArrayList<String> tempMembers = new ArrayList<String>();
+											if (groupMembers.get(groupName) != null) {
+												tempMembers = groupMembers.get(groupName);
+												tempMembers.add(name);
+												groupMembers.put(groupName, tempMembers);
+											} else {
+												tempMembers.add(name);
+												groupMembers.put(groupName, tempMembers);
+											}
 										} else {
-											tempMembers.add(name);
-											groupMembers.put(groupName, tempMembers);
+											lblToolTip.setText("Please only include alphanumeric characters in your group name!");
 										}
 									} else {
 										//Give a notice that name has been taken already
@@ -573,7 +707,7 @@ public class WhatsChatClient extends JFrame {
 											btnUnselect.setEnabled(true);
 
 											refreshTextArea(textArea);
-											updateUserUIList();
+											updateUserUIList(lblUserlist);
 
 											lblToolTip.setText("You have been added to the group: " + addToGroup);
 
@@ -644,7 +778,7 @@ public class WhatsChatClient extends JFrame {
 											isOldestGrpMem.put(remvFrmGroup, 1);
 										}
 
-										updateUserUIList();
+										updateUserUIList(lblUserlist);
 									}
 								}
 								
@@ -655,41 +789,43 @@ public class WhatsChatClient extends JFrame {
 									String oldGroupName = editGroupMessage.substring(0, editGroupMessage.indexOf(separatorTrail));
 									String newGroupName = editGroupMessage.substring(editGroupMessage.indexOf(separatorTrail) + 3);
 
-									System.out.println(oldGroupName);
-									
 									//Check if new group name already exists
 									if (!runGroupNameCheck(newGroupName)){
-										//Tell everyone to update the group name
-										
-										//Update groups hashmap and remove old details
-										if (groups.get(oldGroupName) != null) {
-											String tempIPAdd = groups.get(oldGroupName);
-											groups.put(newGroupName, tempIPAdd);
-											groups.remove(oldGroupName);
-										}
-										//Update group members hashmap and remove old details
-										if (groupMembers.get(oldGroupName) != null) {
-											ArrayList<String> tempMemList = groupMembers.get(oldGroupName);
-											groupMembers.put(newGroupName, tempMemList);
-											groupMembers.remove(oldGroupName);
-										}
-										//Update group conversation list hashmap and remove old details
-										if (chatHistory.get(oldGroupName) != null) {
-											ArrayList<String> tempConvoHist = chatHistory.get(oldGroupName);
-											chatHistory.put(newGroupName, tempConvoHist);
-											chatHistory.remove(oldGroupName);
-										}
+										if (isAlphaNumeric(newGroupName)) {
+											//Tell everyone to update the group name
 
-										//Update local group list
-										if (activeGroup.equals(oldGroupName)) {
-											groupList.set(groupList.indexOf(oldGroupName + " - Active"), newGroupName + " - Active");
-											activeGroup = newGroupName;
+											//Update groups hashmap and remove old details
+											if (groups.get(oldGroupName) != null) {
+												String tempIPAdd = groups.get(oldGroupName);
+												groups.put(newGroupName, tempIPAdd);
+												groups.remove(oldGroupName);
+											}
+											//Update group members hashmap and remove old details
+											if (groupMembers.get(oldGroupName) != null) {
+												ArrayList<String> tempMemList = groupMembers.get(oldGroupName);
+												groupMembers.put(newGroupName, tempMemList);
+												groupMembers.remove(oldGroupName);
+											}
+											//Update group conversation list hashmap and remove old details
+											if (chatHistory.get(oldGroupName) != null) {
+												ArrayList<String> tempConvoHist = chatHistory.get(oldGroupName);
+												chatHistory.put(newGroupName, tempConvoHist);
+												chatHistory.remove(oldGroupName);
+											}
+
+											//Update local group list
+											if (activeGroup.equals(oldGroupName)) {
+												groupList.set(groupList.indexOf(oldGroupName + " - Active"), newGroupName + " - Active");
+												activeGroup = newGroupName;
+											} else {
+												groupList.set(groupList.indexOf(oldGroupName), newGroupName);
+											}
+
+											updateGroupUIList();
+											lblToolTip.setText(oldGroupName + "changed name to: " + newGroupName);
 										} else {
-											groupList.set(groupList.indexOf(oldGroupName), newGroupName);
+											lblToolTip.setText("Please only include alphanumeric chracters in your new group name!");
 										}
-
-										updateGroupUIList();
-										lblToolTip.setText(oldGroupName + "changed name to: " + newGroupName);
 									} else {
 										//Inform user that they cannot use the new name
 										lblToolTip.setText("Group name already taken, please choose another.");
@@ -724,7 +860,7 @@ public class WhatsChatClient extends JFrame {
 									//Refresh UI
 									lblToolTip.setText("The group: " + delGroupMsg + "has been deleted!");
 									updateGroupUIList();
-									updateUserUIList();
+									updateUserUIList(lblUserlist);
 
 									leaveGroupPt2(delGroupMsg);
 								}
@@ -780,7 +916,7 @@ public class WhatsChatClient extends JFrame {
 								//Gives the updated list to anyone with an empty user list
 								if(userList.size() == 0){
 									//Start decoding the list of users
-									addUserList(msgUserRecvMessage);
+									addUserList(msgUserRecvMessage, lblUserlist);
 								}
 							}
 
@@ -801,6 +937,45 @@ public class WhatsChatClient extends JFrame {
 								String groupsToRemv = leavNetMessage.substring(leavNetMessage.indexOf(separatorTrail) + 3);
 
 								updateLeaving(userToRemv, groupsToRemv, lblUserlist);
+							}
+
+							//Message for when someone requests for a profile picture
+							if(receivedMessage.substring(0, 3).equals(profileReqCmd)){
+								String profReqMessage = receivedMessage.substring(3);
+								//Check if this instance is the asker's requested guy
+								if (user.equals(profReqMessage)){
+									//Reply own details
+									String replyMessage = profileRecvCmd;
+									if (userDesc.equals("")){
+										replyMessage += "none";
+									} else {
+										replyMessage += userDesc + separatorTrail + userImg;
+									}
+
+									sendBroadcastData(replyMessage);
+								}
+							}
+
+							//Message for when someone replies for a profile picture
+							if(receivedMessage.substring(0,3).equals(profileRecvCmd)){
+								String profRecvMessage = receivedMessage.substring(3);
+								//Check if this instance is the requestor
+								if (isProfileAsker == 1){
+									if(profRecvMessage.equals("none")){
+										selectedUserDesc = "";
+										selectedUserImg = "";
+									} else {
+										selectedUserDesc = profRecvMessage.substring(0, profRecvMessage.indexOf(separatorTrail));
+										selectedUserImg = profRecvMessage.substring(profRecvMessage.indexOf(separatorTrail) + 3);
+
+									}
+
+									textAreaDescription.setEditable(false);
+									btnSave.setEnabled(false);
+									btnUpload.setEnabled(false);
+									updateProfilePanel(textAreaDescription, lblChoosenName, lblProfilePhoto);
+									isProfileAsker = 0;
+								}
 							}
 							
 						} catch (IOException ex){
@@ -986,7 +1161,6 @@ public class WhatsChatClient extends JFrame {
 				}
 
 				returnMsg += name + groupSeparatorTrail + ipAdd + ipSeparatorTrail + users;
-				System.out.println(returnMsg);
 
 				returnMsg += userSeparatorTrail;
 
@@ -1011,7 +1185,7 @@ public class WhatsChatClient extends JFrame {
 	}
 	
 	//Adds in user list from oldest network user
-	private void addUserList(String userString){
+	private void addUserList(String userString, JLabel lblUserlist){
 		if (!userString.equals("none")){
 			String[] list = userString.split(userSeparatorTrail);
 			userList = new ArrayList<String>(Arrays.asList(list));
@@ -1021,15 +1195,12 @@ public class WhatsChatClient extends JFrame {
 			}
 			userList.remove(userList.size()-1);
 		}
-		updateUserUIList();
+		updateUserUIList(lblUserlist);
 	}
 
 	//Adds in group list from oldest network user
 	private void addGrpList(String groupString){
-		System.out.println("Check 1");
-		System.out.println(groupString);
 		if (!groupString.equals("none")){
-			System.out.println("Check 2");
 			String[] list = groupString.split(userSeparatorTrail);
 			ArrayList<String> tempGroups = new ArrayList<String>(Arrays.asList(list));
 			for (int i = 0; i < tempGroups.size(); i++){
@@ -1039,7 +1210,6 @@ public class WhatsChatClient extends JFrame {
 //			if (tempGroups.size() > 1) {
 //				tempGroups.remove(tempGroups.size() - 1);
 //			}
-			System.out.println(tempGroups);
 
 			String[] list2;
 			String groupName;
@@ -1048,7 +1218,6 @@ public class WhatsChatClient extends JFrame {
 			ArrayList<String> tempMembers;
 			//Get users in groups
 			for (String pack : tempGroups){
-				System.out.println(pack);
 				groupName = pack.substring(0, pack.indexOf(groupSeparatorTrail));
 				groupIP = pack.substring(pack.indexOf(groupSeparatorTrail) + 3, pack.indexOf(ipSeparatorTrail));
 				members = pack.substring(pack.indexOf(ipSeparatorTrail) + 1);
@@ -1063,13 +1232,9 @@ public class WhatsChatClient extends JFrame {
 //				if (tempMembers.size() > 1) {
 //					tempMembers.remove(tempMembers.size() - 1);
 //				}
-				System.out.println(groupName + " : " + groupIP + " : " + tempMembers);
 				groups.put(groupName, groupIP);
 				groupMembers.put(groupName, tempMembers);
 			}
-			System.out.println(groups);
-			System.out.println(groupMembers);
-
 			updateGroupUIList();
 		}
 	}
@@ -1110,12 +1275,22 @@ public class WhatsChatClient extends JFrame {
 		}
 	}
 	
-	private void updateUserUIList(){
-		userListModel = new DefaultListModel<String>();
-		for (String user : userList){
-			userListModel.addElement(user);
+	private void updateUserUIList(JLabel lblUserList){
+
+		if (lblUserList.getText().equals("Active Group")){
+			userListModel = new DefaultListModel<String>();
+			ArrayList<String> tempList = groupMembers.get(activeGroup);
+			for (String user : tempList){
+				userListModel.addElement(user);
+			}
+			listUsers.setModel(userListModel);
+		} else {
+			userListModel = new DefaultListModel<String>();
+			for (String user : userList){
+				userListModel.addElement(user);
+			}
+			listUsers.setModel(userListModel);
 		}
-		listUsers.setModel(userListModel);
 	}
 	
 	private void updateGroupUIList(){
@@ -1139,8 +1314,6 @@ public class WhatsChatClient extends JFrame {
 			tempName = tempName + " - Active";
 			groupList.set(tempInd, tempName);
 		} else {
-			System.out.println(oldAct);
-			System.out.println(groupList);
 			String tempNameOld = groupList.get(groupList.indexOf(oldAct + " - Active"));
 			int tempIndOld = groupList.indexOf(oldAct + " - Active");
 			tempNameOld = tempNameOld.substring(0, oldAct.length());
@@ -1165,8 +1338,8 @@ public class WhatsChatClient extends JFrame {
 			lblUserList.setText("Active Group");
 			listUsers.setModel(userListModel);
 		} else {
-			updateUserUIList();
 			lblUserList.setText("All");
+			updateUserUIList(lblUserList);
 		}
 	}
 
@@ -1181,8 +1354,6 @@ public class WhatsChatClient extends JFrame {
 
 	//When someone leaves the network, everyone is to update their lists that contain that user
 	public void updateLeaving(String userName, String groupNames, JLabel lblUserList){
-		System.out.println("Update leave: " + userName + " : " + groupNames);
-
 		//userName variable refers to the name of the guy who left
 		//groupNames will be the leaving guy's list of groups that he's joined
 
@@ -1207,8 +1378,6 @@ public class WhatsChatClient extends JFrame {
 				tempGroups.set(i, tempName);
 			}
 			tempGroups.remove(tempGroups.size()-1);
-
-			System.out.println(tempGroups);
 
 			//Remove the leaver from the groups
 			for (String groupName : tempGroups){
@@ -1239,7 +1408,7 @@ public class WhatsChatClient extends JFrame {
 			}
 			listUsers.setModel(userListModel);
 		} else {
-			updateUserUIList();
+			updateUserUIList(lblUserList);
 		}
 		updateGroupUIList();
 	}
@@ -1254,7 +1423,6 @@ public class WhatsChatClient extends JFrame {
 			String groupNames = "";
 			if (groupList.size() > 0) {
 				for (String groupName : groupList) {
-					System.out.println(activeGroup +  " compared to " + groupName);
 					if (groupName.length() > 9 && activeGroup.equals(groupName.substring(0, groupName.length() - 9))){
 						groupNames += groupName.substring(0, groupName.length() - 9) + msgSeparatorTrail + " ";
 					} else {
@@ -1282,5 +1450,104 @@ public class WhatsChatClient extends JFrame {
 		}
 
 		return ipAdd;
+	}
+
+
+
+
+	//Codes for user profiling
+
+	//Rescale image
+	public static BufferedImage scaleImage(int w, int h, BufferedImage img) throws Exception {
+		BufferedImage bi;
+		bi = new BufferedImage(w, h, BufferedImage.TRANSLUCENT);
+		Graphics2D g2d = (Graphics2D) bi.createGraphics();
+		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		g2d.addRenderingHints(new RenderingHints(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY));
+		g2d.drawImage(img, 0, 0, w, h, null);
+		g2d.dispose();
+		return bi;
+	}
+
+	//Convert image to bytes
+	public static byte[] bufferedImageToByteArray(BufferedImage image, String format) throws IOException {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		ImageIO.write(image, format, baos);
+		return baos.toByteArray();
+	}
+
+
+	//Convert image to string codes
+	public static String encodeToString(BufferedImage image, String type) {
+		String imageString = null;
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+
+		try {
+			ImageIO.write(image, type, bos);
+			byte[] imageBytes = bos.toByteArray();
+
+			BASE64Encoder encoder = new BASE64Encoder();
+			imageString = encoder.encode(imageBytes);
+
+			bos.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return imageString;
+	}
+
+	//Convert string code into image
+	public static BufferedImage decodeToImage(String imageString) {
+
+		BufferedImage image = null;
+		byte[] imageByte;
+		try {
+			BASE64Decoder decoder = new BASE64Decoder();
+			imageByte = decoder.decodeBuffer(imageString);
+			ByteArrayInputStream bis = new ByteArrayInputStream(imageByte);
+			image = ImageIO.read(bis);
+			bis.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return image;
+	}
+
+	public void updateProfilePanel(JTextArea textAreaDesc, JLabel userName, JLabel profilePic){
+		if (!selectedUserP.equals("")){
+			//Selected a user
+			textAreaDesc.setEditable(false);
+			userName.setText(selectedUserP);
+			if (!selectedUserDesc.equals("")){
+				textAreaDesc.setText(selectedUserDesc);
+				BufferedImage selectedProfImgBuf = decodeToImage(selectedUserImg);
+				ImageIcon selectProfImg = new ImageIcon(selectedProfImgBuf);
+				profilePic.setText("");
+				profilePic.setIcon(selectProfImg);
+			} else {
+				profilePic.setText("No picture");
+				textAreaDesc.setText("User does not have a profile setup!");
+			}
+		} else {
+			textAreaDesc.setEditable(true);
+			userName.setText(user);
+			if (!userDesc.equals("")){
+				textAreaDesc.setText(userDesc);
+				BufferedImage profImgBuf = decodeToImage(userImg);
+				ImageIcon profImg = new ImageIcon(profImgBuf);
+				profilePic.setText("");
+				profilePic.setIcon(profImg);
+			} else {
+				textAreaDesc.setText(null);
+				profilePic.setIcon(null);
+				profilePic.setText("No picture");
+			}
+		}
+	}
+
+
+	public boolean isAlphaNumeric(String s){
+		String pattern= "^[a-zA-Z0-9]*$";
+		return s.matches(pattern);
 	}
 }
