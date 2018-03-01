@@ -525,7 +525,10 @@ public class WhatsChatClient extends JFrame {
 										}
 									} else {
 										//Give a notice that name has been taken already
-										lblToolTip.setText("Group name has already been taken...");
+										if (isCreatingGuy == 1) {
+											lblToolTip.setText("Group name has already been taken...");
+											isCreatingGuy = 0;
+										}
 									}
 								}
 								
