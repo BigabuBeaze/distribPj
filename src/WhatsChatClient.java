@@ -142,7 +142,9 @@ public class WhatsChatClient extends JFrame {
 		} catch (Exception ex){
 			ex.printStackTrace();
 		}
-		
+
+		setTitle("WhatsChat");
+
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
 			@Override
@@ -488,6 +490,7 @@ public class WhatsChatClient extends JFrame {
 										
 										if(isCreatingGuy == 1){
 											//Join the group
+											ipAdd = checkGroupIP(ipAdd);
 											joinGroup(ipAdd, textArea, groupName);
 											groupList.add(groupName);
 											updateGroupUIList();
@@ -966,7 +969,7 @@ public class WhatsChatClient extends JFrame {
 				returnMsg += name + groupSeparatorTrail + ipAdd + ipSeparatorTrail + users;
 				System.out.println(returnMsg);
 
-				grpListRecvCmd += groupSeparatorTrail;
+				returnMsg += userSeparatorTrail;
 
 			}
 
@@ -1014,9 +1017,9 @@ public class WhatsChatClient extends JFrame {
 				String temp  = tempGroups.get(i).trim();
 				tempGroups.set(i, temp);
 			}
-			if (tempGroups.size() > 1) {
-				tempGroups.remove(tempGroups.size() - 1);
-			}
+//			if (tempGroups.size() > 1) {
+//				tempGroups.remove(tempGroups.size() - 1);
+//			}
 			System.out.println(tempGroups);
 
 			String[] list2;
@@ -1029,7 +1032,7 @@ public class WhatsChatClient extends JFrame {
 				System.out.println(pack);
 				groupName = pack.substring(0, pack.indexOf(groupSeparatorTrail));
 				groupIP = pack.substring(pack.indexOf(groupSeparatorTrail) + 3, pack.indexOf(ipSeparatorTrail));
-				members = pack.substring(pack.indexOf(ipSeparatorTrail) + 3);
+				members = pack.substring(pack.indexOf(ipSeparatorTrail) + 1);
 				list2 = members.split(msgSeparatorTrail);
 
 				tempMembers = new ArrayList<String>(Arrays.asList(list2));
@@ -1038,9 +1041,9 @@ public class WhatsChatClient extends JFrame {
 					String temp  = tempMembers.get(i).trim();
 					tempMembers.set(i, temp);
 				}
-				if (tempMembers.size() > 1) {
-					tempMembers.remove(tempMembers.size() - 1);
-				}
+//				if (tempMembers.size() > 1) {
+//					tempMembers.remove(tempMembers.size() - 1);
+//				}
 				System.out.println(groupName + " : " + groupIP + " : " + tempMembers);
 				groups.put(groupName, groupIP);
 				groupMembers.put(groupName, tempMembers);
@@ -1246,5 +1249,19 @@ public class WhatsChatClient extends JFrame {
 
 			sendBroadcastData(requestMessage);
 		}
+	}
+
+	//Check for conflicting group IP Address
+	public String checkGroupIP(String ipAdd){
+		while(groups.containsValue(ipAdd)){
+			//Append a new address for the group
+			ipAdd = baseReservedAdd + String.valueOf(toReserveX)
+					+ "." + String.valueOf(toReserveY);
+			//Refresh X and Y IP address parts incase of new creation
+			toReserveX = 2 + ran.nextInt(254);
+			toReserveY = 2 + ran.nextInt(254);
+		}
+
+		return ipAdd;
 	}
 }
