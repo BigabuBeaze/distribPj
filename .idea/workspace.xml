@@ -7,13 +7,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e8e53244-8383-483b-8240-3b8fa48ee5e1" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/WhatsChatClient$10.class" afterPath="$PROJECT_DIR$/bin/WhatsChatClient$10.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/WhatsChatClient$5.class" afterPath="$PROJECT_DIR$/bin/WhatsChatClient$5.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/WhatsChatClient$6.class" afterPath="$PROJECT_DIR$/bin/WhatsChatClient$6.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/WhatsChatClient$7.class" afterPath="$PROJECT_DIR$/bin/WhatsChatClient$7.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/WhatsChatClient$8.class" afterPath="$PROJECT_DIR$/bin/WhatsChatClient$8.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/WhatsChatClient$9.class" afterPath="$PROJECT_DIR$/bin/WhatsChatClient$9.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/WhatsChatClient.class" afterPath="$PROJECT_DIR$/bin/WhatsChatClient.class" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/WhatsChatClient.java" afterPath="$PROJECT_DIR$/src/WhatsChatClient.java" />
     </list>
@@ -33,10 +26,10 @@
       <file leaf-file-name="WhatsChatClient.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/WhatsChatClient.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="450">
-              <caret line="472" column="72" lean-forward="false" selection-start-line="472" selection-start-column="72" selection-end-line="472" selection-end-column="72" />
+            <state relative-caret-position="-179">
+              <caret line="348" column="8" lean-forward="false" selection-start-line="348" selection-start-column="8" selection-end-line="348" selection-end-column="8" />
               <folding>
-                <element signature="e#39719#39727#0" expanded="true" />
+                <element signature="e#39905#39913#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -50,6 +43,7 @@
       <find>jframe</find>
       <find>you have</find>
       <find>multicas</find>
+      <find>Member Man</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -331,7 +325,14 @@
       <option name="project" value="LOCAL" />
       <updated>1519872489286</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="Made it so you need to register before you can touch group stuff">
+      <created>1519872685109</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1519872685109</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -385,7 +386,8 @@
     <MESSAGE value="Added more instruction messages" />
     <MESSAGE value="Fixed very big error with new guys not receiving group details if there are more than 1 groups. Also added automated IP address checking for group creation" />
     <MESSAGE value="... Error message fix with creating a group name" />
-    <option name="LAST_COMMIT_MESSAGE" value="... Error message fix with creating a group name" />
+    <MESSAGE value="Made it so you need to register before you can touch group stuff" />
+    <option name="LAST_COMMIT_MESSAGE" value="Made it so you need to register before you can touch group stuff" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -397,7 +399,7 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#39719#39727#0" expanded="true" />
+            <element signature="e#39905#39913#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -407,7 +409,7 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#39719#39727#0" expanded="true" />
+            <element signature="e#39905#39913#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -417,7 +419,7 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#39719#39727#0" expanded="true" />
+            <element signature="e#39905#39913#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -427,7 +429,7 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#39719#39727#0" expanded="true" />
+            <element signature="e#39905#39913#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -437,7 +439,7 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#39719#39727#0" expanded="true" />
+            <element signature="e#39905#39913#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -447,7 +449,7 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#39719#39727#0" expanded="true" />
+            <element signature="e#39905#39913#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -457,7 +459,7 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#39719#39727#0" expanded="true" />
+            <element signature="e#39905#39913#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -467,17 +469,17 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#39719#39727#0" expanded="true" />
+            <element signature="e#39905#39913#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/WhatsChatClient.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="450">
-          <caret line="472" column="72" lean-forward="false" selection-start-line="472" selection-start-column="72" selection-end-line="472" selection-end-column="72" />
+        <state relative-caret-position="-179">
+          <caret line="348" column="8" lean-forward="false" selection-start-line="348" selection-start-column="8" selection-end-line="348" selection-end-column="8" />
           <folding>
-            <element signature="e#39719#39727#0" expanded="true" />
+            <element signature="e#39905#39913#0" expanded="true" />
           </folding>
         </state>
       </provider>

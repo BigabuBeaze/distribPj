@@ -346,6 +346,32 @@ public class WhatsChatClient extends JFrame {
 		JTextArea textArea = new JTextArea();
 		scrollPane.setViewportView(textArea);
 		textArea.setEditable(false);
+		
+		JPanel panelChosenGrp = new JPanel();
+		panelChosenGrp.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Group Name", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		panelChosenGrp.setBounds(4, 158, 475, 43);
+		contentPane.add(panelChosenGrp);
+		panelChosenGrp.setLayout(null);
+
+		textFieldGroup = new JTextField();
+		textFieldGroup.setBounds(6, 16, 360, 20);
+		panelChosenGrp.add(textFieldGroup);
+		textFieldGroup.setColumns(10);
+
+		JButton btnUnselect = new JButton("Unselect");
+		btnUnselect.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				panel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Group Management", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+				btnGroupCreate.setText("Create");
+				btnGroupDelete.setText("Delete");
+				btnGroupEdit.setText("Edit Group Name");
+
+				btnUnselect.setEnabled(false);
+			}
+		});
+		btnUnselect.setBounds(376, 15, 89, 23);
+		btnUnselect.setEnabled(false);
+		panelChosenGrp.add(btnUnselect);
 
 		listGroups = new JList<String>();
 		listGroups.addMouseListener(new MouseAdapter() {
@@ -369,35 +395,14 @@ public class WhatsChatClient extends JFrame {
 						btnGroupCreate.setText("Add");
 						btnGroupDelete.setText("Remove");
 						btnGroupEdit.setText("Toggle user list");
+
+						btnUnselect.setEnabled(true);
 					}
 				}
 			}
 		});
 		scrollPaneGroups.setViewportView(listGroups);
 		listGroups.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		
-		JPanel panelChosenGrp = new JPanel();
-		panelChosenGrp.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Group Name", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
-		panelChosenGrp.setBounds(4, 158, 475, 43);
-		contentPane.add(panelChosenGrp);
-		panelChosenGrp.setLayout(null);
-		
-		textFieldGroup = new JTextField();
-		textFieldGroup.setBounds(6, 16, 360, 20);
-		panelChosenGrp.add(textFieldGroup);
-		textFieldGroup.setColumns(10);
-		
-		JButton btnUnselect = new JButton("Unselect");
-		btnUnselect.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				panel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Group Management", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
-				btnGroupCreate.setText("Create");
-				btnGroupDelete.setText("Delete");
-				btnGroupEdit.setText("Edit Group Name");
-			}
-		});
-		btnUnselect.setBounds(376, 15, 89, 23);
-		panelChosenGrp.add(btnUnselect);
 
 		textFieldTextMsg = new JTextField();
 		textFieldTextMsg.setBounds(10, 513, 864, 20);
@@ -512,6 +517,8 @@ public class WhatsChatClient extends JFrame {
 											btnGroupDelete.setText("Remove");
 											btnGroupEdit.setText("Toggle user list");
 
+											btnUnselect.setEnabled(true);
+
 											//Instance becomes oldest member of group
 											isOldestGrpMem.put(groupName, 1);
 
@@ -562,6 +569,8 @@ public class WhatsChatClient extends JFrame {
 											btnGroupCreate.setText("Add");
 											btnGroupDelete.setText("Remove");
 											btnGroupEdit.setText("Toggle user list");
+
+											btnUnselect.setEnabled(true);
 
 											refreshTextArea(textArea);
 											updateUserUIList();
